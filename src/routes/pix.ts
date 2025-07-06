@@ -10,9 +10,16 @@ const router = new Router();
 const bucketStorage = new BucketStorage();
 const leakyBucketService = new LeakyBucketService(bucketStorage);
 
-router.get('/pix', authMiddleware, async (ctx) => {
+router.post('/pix', authMiddleware, async (ctx) => {
+  const body = ctx.request.body as { pixId?: string };
+  const pixId = body.pixId;
+  if (!pixId) {
+    ctx.status = 400;
+    ctx.body = { error: 'pixId is required' };
+    return;
+  }
   const userId = ctx.state.user.id;
-  const wasSuccessful = await PixService.handleRequest();
+  const wasSuccessful = await PixService.handleRequest(pixId);
   const { tokensLeft } = await leakyBucketService.handleBucket(userId, wasSuccessful);
   ctx.body = {
     message: wasSuccessful ? 'Request successful' : 'Request failed and token deducted',
