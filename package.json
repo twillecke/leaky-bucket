@@ -15,7 +15,8 @@
     "jsonwebtoken": "^9.0.2",
     "koa": "^3.0.0",
     "koa-bodyparser": "^4.4.1",
-    "koa-router": "^13.1.1"
+    "koa-router": "^13.1.1",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
@@ -24,6 +25,7 @@
     "@types/koa-bodyparser": "^4.3.12",
     "@types/koa-router": "^7.4.8",
     "@types/node": "^24.0.10",
+    "@types/node-fetch": "^2.6.12",
     "@types/supertest": "^6.0.3",
     "jest": "^30.0.4",
     "supertest": "^7.1.1",

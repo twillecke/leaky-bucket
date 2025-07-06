@@ -17,10 +17,6 @@ export default class LeakyBucket {
     this.capacity = BUCKET_CAPACITY;
   }
 
-  public hasToken(): boolean {
-    return this.tokens > 0;
-  }
-
   public consumeToken(): void {
     if (this.tokens > 0) this.tokens -= 1;
   }
@@ -29,10 +25,14 @@ export default class LeakyBucket {
     return this.tokens;
   }
 
+  public hasAvailableTokens(): boolean {
+    this.refillIfNeeded();
+    return this.tokens > 0;
+  }
+
   public refillIfNeeded(): void {
     const now = new Date();
     const elapsed = now.getTime() - this.refilledAt.getTime();
-
     if (elapsed > BUCKET_REFILL_RATE) {
       const hoursPassed = Math.floor(elapsed / 3600000); // ms to hours
       if (hoursPassed > 0) {

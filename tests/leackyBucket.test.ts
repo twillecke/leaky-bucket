@@ -6,7 +6,7 @@ describe('LeakyBucket', () => {
   test('should initialize with default tokens', () => {
     const bucket = new LeakyBucket(userId);
     expect(bucket.getTokensLeft()).toBe(5); // default from .env or fallback
-    expect(bucket.hasToken()).toBe(true);
+    expect(bucket.hasAvailableTokens()).toBe(true);
   });
 
   test('should consume token if available', () => {
@@ -19,12 +19,12 @@ describe('LeakyBucket', () => {
     const bucket = new LeakyBucket(userId, 0);
     bucket.consumeToken();
     expect(bucket.getTokensLeft()).toBe(0);
-    expect(bucket.hasToken()).toBe(false);
+    expect(bucket.hasAvailableTokens()).toBe(false);
   });
 
   test('should not consume if tokens are 0', () => {
     const bucket = new LeakyBucket(userId, 0);
-    expect(bucket.hasToken()).toBe(false);
+    expect(bucket.hasAvailableTokens()).toBe(false);
   });
 
   test('should refill tokens after enough time', () => {
