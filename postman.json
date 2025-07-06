@@ -1,0 +1,78 @@
+{
+  "info": {
+    "name": "Leaky Bucket API",
+    "_postman_id": "12345678-90ab-cdef-1234-567890abcdef",
+    "description": "Test Leaky Bucket /pix POST endpoint",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "POST /pix - Missing pixId",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_VALID_JWT_TOKEN_HERE",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/pix",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "pix"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST /pix - Valid request",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_VALID_JWT_TOKEN_HERE",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"pixId\": \"test-pix-key-123\"}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/pix",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "pix"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
