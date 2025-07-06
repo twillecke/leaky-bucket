@@ -1,53 +1,56 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-const BUCKET_CAPACITY = process.env.BUCKET_CAPACITY ? parseInt(process.env.BUCKET_CAPACITY, 10) : 5; // Default capacity
-const BUCKET_REFILL_RATE = process.env.BUCKET_REFILL_RATE ? parseInt(process.env.BUCKET_REFILL_RATE, 10) : 5000; // Default refill rate
+const BUCKET_CAPACITY = parseInt(process.env.BUCKET_CAPACITY || '5', 10);
+const BUCKET_REFILL_RATE = parseInt(process.env.BUCKET_REFILL_RATE || '5000', 10);
 
 export default class LeakyBucket {
-  public readonly createdAt: Date;
-  public readonly userId: string;
+  public refilledAt: Date;
+  public userId: string;
   private capacity: number;
   private tokens: number;
-  private intervalID: NodeJS.Timeout | null = null;
 
-  constructor(userId: string) {
-    this.createdAt = new Date();
+  constructor(userId: string, tokens = BUCKET_CAPACITY, refilledAt = new Date()) {
     this.userId = userId;
+    this.tokens = tokens;
+    this.refilledAt = refilledAt;
     this.capacity = BUCKET_CAPACITY;
-    this.tokens = this.capacity;
   }
 
-  public start(): void {
-    if (this.intervalID) return;
-    this.intervalID = setInterval(() => {
-      this.resetTokenCount();
-    }, BUCKET_REFILL_RATE);
+  public hasToken(): boolean {
+    return this.tokens > 0;
   }
 
-  public stop(): void {
-    if (this.intervalID) {
-      clearInterval(this.intervalID);
-      this.intervalID = null;
-      this.resetTokenCount();
+  public consumeToken(): void {
+    if (this.tokens > 0) this.tokens -= 1;
+  }
+
+  public getTokensLeft(): number {
+    return this.tokens;
+  }
+
+  public refillIfNeeded(): void {
+    const now = new Date();
+    const elapsed = now.getTime() - this.refilledAt.getTime();
+
+    if (elapsed > BUCKET_REFILL_RATE) {
+      const hoursPassed = Math.floor(elapsed / 3600000); // ms to hours
+      if (hoursPassed > 0) {
+        this.tokens = Math.min(this.capacity, this.tokens + hoursPassed);
+        this.refilledAt = now;
+      }
     }
   }
 
-  public async getToken(): Promise<boolean> {
-    if (this.tokens > 0) {
-      this.decreaseToken();
-      return true;
-    }
-    return false;
+  public toJSON() {
+    return {
+      userId: this.userId,
+      tokens: this.tokens,
+      refilledAt: this.refilledAt.toISOString(),
+    };
   }
 
-  private async decreaseToken(): Promise<void> {
-    if (this.tokens > 0) {
-      this.tokens--;
-    }
-  }
-
-  private resetTokenCount(): void {
-    this.tokens = this.capacity;
+  public static fromJSON(data: { userId: string; tokens: number; refilledAt: string }): LeakyBucket {
+    return new LeakyBucket(data.userId, data.tokens, new Date(data.refilledAt));
   }
 }

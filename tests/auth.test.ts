@@ -1,39 +1,73 @@
-import { generateToken } from "../src/utils/generateToken";
+import { authMiddleware } from '../src/middleware/auth';
+import { generateToken } from '../src/utils/generateToken';
 
-// should return 401 if no token is present in Authorization Header
-test('should return 401 if no token is present in request Authorization Header', async () => {
-  const request = await fetch('http://localhost:3000/auth', {
-    method: 'GET',
-  });
-  expect(request.status).toBe(401);
-  const data = await request.json();
-  expect(data.error).toBe('Missing or invalid Authorization header');
-});
+describe('authMiddleware', () => {
+  const next = jest.fn();
 
-// should return 401 if token is invalid or expired
-test('should return 401 if token is invalid or expired', async () => {
-  const request = await fetch('http://localhost:3000/auth', {
-    method: 'GET',
-    headers: {
-      'Authorization': 'Bearer invalid_token'
-    }
-  });
-  expect(request.status).toBe(401);
-  const data = await request.json();
-  expect(data.error).toBe('Invalid or expired token');
-});
+  it('should return 401 if no Authorization header is present', async () => {
+    const ctx: any = {
+      headers: {},
+      status: 0,
+      body: null,
+      state: {},
+    };
 
-// should return 200 and userId if token is valid
-test('should return 200 and userId if token is valid', async () => {
-  const token = generateToken('test_user_id');
-  const request = await fetch('http://localhost:3000/auth', {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
+    await authMiddleware(ctx, next);
+
+    expect(ctx.status).toBe(401);
+    expect(ctx.body).toEqual({ error: 'Missing or invalid Authorization header' });
+    expect(next).not.toHaveBeenCalled();
   });
-  expect(request.status).toBe(200);
-  const data = await request.json();
-  expect(data.message).toBe('Authorized');
-  expect(data.userId).toBe('test_user_id');
+
+  it('should return 401 if Authorization header is malformed', async () => {
+    const ctx: any = {
+      headers: {
+        authorization: 'Token something',
+      },
+      status: 0,
+      body: null,
+      state: {},
+    };
+
+    await authMiddleware(ctx, next);
+
+    expect(ctx.status).toBe(401);
+    expect(ctx.body).toEqual({ error: 'Missing or invalid Authorization header' });
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('should return 401 if token is invalid', async () => {
+    const ctx: any = {
+      headers: {
+        authorization: 'Bearer invalidtoken',
+      },
+      status: 0,
+      body: null,
+      state: {},
+    };
+
+    await authMiddleware(ctx, next);
+
+    expect(ctx.status).toBe(401);
+    expect(ctx.body).toEqual({ error: 'Invalid or expired token' });
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('should call next and attach user if token is valid', async () => {
+    const token = generateToken('user123');
+    const ctx: any = {
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+      status: 0,
+      body: null,
+      state: {},
+    };
+
+    await authMiddleware(ctx, next);
+
+    expect(ctx.status).toBe(0); // didn't override
+    expect(ctx.state.user).toEqual({ id: 'user123' });
+    expect(next).toHaveBeenCalled();
+  });
 });
