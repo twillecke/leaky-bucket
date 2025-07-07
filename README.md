@@ -79,3 +79,5 @@ Responses:
 - 200 OK with tokens left and success/failure message
 - 429 Too Many Requests if rate limited
 - 401 Unauthorized if missing or invalid token
+- Include `X-RateLimit-Remaining` header in responses to indicate remaining tokens
+- Include `X-RateLimit-Reset` header to indicate when tokens will be refilled
