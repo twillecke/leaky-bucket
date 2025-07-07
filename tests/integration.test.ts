@@ -15,6 +15,14 @@ test('POST /pix - single request', async () => {
   console.log('Response:', response.status, response.statusText);
   const text = await response.text();
   console.log('Body:', text);
+  // Log rate limiting headers
+  console.log('X-RateLimit-Limit:', response.headers.get('X-RateLimit-Limit'));
+  console.log('X-RateLimit-Remaining:', response.headers.get('X-RateLimit-Remaining'));
+  console.log('X-RateLimit-Reset:', response.headers.get('X-RateLimit-Reset'));
+
+  expect(response.headers.get('X-RateLimit-Limit')).toBeDefined();
+  expect(response.headers.get('X-RateLimit-Remaining')).toBeDefined();
+  expect(response.headers.get('X-RateLimit-Reset')).toBeDefined();
 });
 
 test('POST /pix - parallel requests to test rate limiting', async () => {
@@ -48,7 +56,12 @@ test('POST /pix - parallel requests to test rate limiting', async () => {
         index,
         status: response.status,
         statusText: response.statusText,
-        body: text
+        body: text,
+        headers: {
+          'X-RateLimit-Limit': response.headers.get('X-RateLimit-Limit'),
+          'X-RateLimit-Remaining': response.headers.get('X-RateLimit-Remaining'),
+          'X-RateLimit-Reset': response.headers.get('X-RateLimit-Reset'),
+        },
       };
     })
   );
@@ -65,6 +78,15 @@ test('POST /pix - parallel requests to test rate limiting', async () => {
   console.log('\n📝 Detailed Results:');
   results.forEach(result => {
     console.log(`Request ${result.index}: ${result.status} ${result.statusText} - ${result.body}`);
+
+    // Log rate limiting headers for each request
+    console.log('X-RateLimit-Limit:', result.headers['X-RateLimit-Limit']);
+    console.log('X-RateLimit-Remaining:', result.headers['X-RateLimit-Remaining']);
+    console.log('X-RateLimit-Reset:', result.headers['X-RateLimit-Reset']);
+
+    expect(result.headers['X-RateLimit-Limit']).toBeDefined();
+    expect(result.headers['X-RateLimit-Remaining']).toBeDefined();
+    expect(result.headers['X-RateLimit-Reset']).toBeDefined();
   });
 
   console.log('\n🔍 Check metrics at: http://localhost:3000/metrics');

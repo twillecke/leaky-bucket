@@ -4,7 +4,7 @@ import LeakyBucket from "./LeakyBucket";
 export default class LeakyBucketService {
   constructor(private storage: BucketStorage) { }
 
-  async hasAvailableTokens(userId: string): Promise<boolean> {
+  public async hasAvailableTokens(userId: string): Promise<boolean> {
     let bucket = await this.storage.getBucket(userId);
     if (!bucket) {
       bucket = new LeakyBucket(userId);
@@ -14,7 +14,7 @@ export default class LeakyBucketService {
     return bucket.hasAvailableTokens();
   }
 
-  async handleBucketAfterRequest(userId: string, wasSuccessful: boolean): Promise<{
+  public async handleBucketAfterRequest(userId: string, wasSuccessful: boolean): Promise<{
     tokensLeft: number;
   }> {
     const bucket = await this.storage.getBucket(userId);
@@ -23,5 +23,24 @@ export default class LeakyBucketService {
     }
     await this.storage.saveBucket(userId, bucket);
     return { tokensLeft: bucket.getTokensLeft() };
+  }
+
+  public async getBucketInfo(userId: string): Promise<{
+    limit: number;
+    remaining: number;
+    reset: number;
+  }> {
+    let bucket = await this.storage.getBucket(userId);
+    if (!bucket) {
+      bucket = new LeakyBucket(userId);
+      await this.storage.saveBucket(userId, bucket);
+    }
+    bucket.refillIfNeeded();
+
+    const limit = bucket.getCapacity();
+    const remaining = bucket.getTokensLeft();
+    const reset = bucket.getNextRefillTime();
+
+    return { limit, remaining, reset };
   }
 }

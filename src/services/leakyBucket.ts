@@ -46,6 +46,17 @@ export default class LeakyBucket {
     }
   }
 
+  public getCapacity(): number {
+    return this.capacity;
+  }
+
+  public getNextRefillTime(): number {
+    const now = new Date();
+    const elapsed = now.getTime() - this.refilledAt.getTime();
+    const timeToNextRefill = BUCKET_REFILL_RATE - (elapsed % BUCKET_REFILL_RATE);
+    return Math.floor((now.getTime() + timeToNextRefill) / 1000); // Return in seconds
+  }
+
   public toJSON() {
     return {
       userId: this.userId,
