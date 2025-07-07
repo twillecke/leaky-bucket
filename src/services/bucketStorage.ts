@@ -1,4 +1,4 @@
-import LeakyBucket from "./leakyBucket";
+import LeakyBucket from "./LeakyBucket";
 
 export default class BucketStorage {
   private buckets: Map<string, LeakyBucket>;

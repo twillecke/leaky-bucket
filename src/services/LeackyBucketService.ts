@@ -1,5 +1,5 @@
-import BucketStorage from "./bucketStorage";
-import LeakyBucket from "./leakyBucket";
+import BucketStorage from "./BucketStorage";
+import LeakyBucket from "./LeakyBucket";
 
 export default class LeakyBucketService {
   constructor(private storage: BucketStorage) { }
