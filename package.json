@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --config jest.config.js",
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts"
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "npm install && tsc",
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",
