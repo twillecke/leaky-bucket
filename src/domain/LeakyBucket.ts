@@ -33,14 +33,10 @@ export default class LeakyBucket {
   public refillIfNeeded(): void {
     const now = new Date();
     const elapsed = now.getTime() - this.refilledAt.getTime();
-    // Check if enough time has passed for a refill
     if (elapsed >= BUCKET_REFILL_RATE) {
-      // Calculate how many refill intervals have passed
       const intervalsPassed = Math.floor(elapsed / BUCKET_REFILL_RATE);
       if (intervalsPassed > 0) {
-        // Refill tokens (add capacity per interval, but don't exceed max capacity)
         this.tokens = Math.min(this.capacity, this.tokens + (intervalsPassed * this.capacity));
-        // Update the last refill time to the most recent complete interval
         this.refilledAt = new Date(this.refilledAt.getTime() + (intervalsPassed * BUCKET_REFILL_RATE));
       }
     }

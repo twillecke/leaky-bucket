@@ -3,7 +3,7 @@ import Router from 'koa-router';
 import { authMiddleware } from '../middleware/auth';
 import PixService from '../services/PixService';
 import LeakyBucketService from '../services/LeackyBucketService';
-import BucketStorage from '../services/BucketStorage';
+import BucketStorage from '../repo/BucketStorage';
 
 const router = new Router();
 const bucketStorage = new BucketStorage();
@@ -18,10 +18,7 @@ router.post('/pix', authMiddleware, async (ctx) => {
     return;
   }
   const userId = ctx.state.user.id;
-
-  // Fetch bucket info for headers
   const bucketInfo = await leakyBucketService.getBucketInfo(userId);
-
   const canProceed = await leakyBucketService.hasAvailableTokens(userId);
   if (!canProceed) {
     ctx.status = 429;
@@ -31,17 +28,12 @@ router.post('/pix', authMiddleware, async (ctx) => {
     ctx.body = { error: 'Rate limit exceeded' };
     return;
   }
-
   const wasSuccessful = await PixService.handleRequest(pixId);
   const { tokensLeft } = await leakyBucketService.handleBucketAfterRequest(userId, wasSuccessful);
-
-  // Update bucket info after request
   const updatedBucketInfo = await leakyBucketService.getBucketInfo(userId);
-
   ctx.set('X-RateLimit-Limit', updatedBucketInfo.limit.toString());
   ctx.set('X-RateLimit-Remaining', updatedBucketInfo.remaining.toString());
   ctx.set('X-RateLimit-Reset', updatedBucketInfo.reset.toString());
-
   ctx.body = {
     message: wasSuccessful ? 'Request successful' : 'Request failed and token deducted',
     tokensLeft,

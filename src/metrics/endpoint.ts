@@ -1,4 +1,4 @@
-import { Context, Next } from 'koa';
+import type { Context, Next } from 'koa';
 import { register } from './prometheus';
 
 // Metrics endpoint middleware

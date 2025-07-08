@@ -1,4 +1,4 @@
-import LeakyBucket from '../src/services/LeakyBucket';
+import LeakyBucket from '../src/domain/LeakyBucket';
 
 describe('LeakyBucket Rate Limiting Algorithm', () => {
   const userId = 'test-user';

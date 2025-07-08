@@ -1,5 +1,5 @@
-import BucketStorage from "./BucketStorage";
-import LeakyBucket from "./LeakyBucket";
+import LeakyBucket from "../domain/LeakyBucket";
+import type BucketStorage from "../repo/BucketStorage";
 
 export default class LeakyBucketService {
   constructor(private storage: BucketStorage) { }
@@ -18,9 +18,7 @@ export default class LeakyBucketService {
     tokensLeft: number;
   }> {
     const bucket = await this.storage.getBucket(userId);
-    if (!wasSuccessful) {
-      bucket.consumeToken();
-    }
+    if (!wasSuccessful) bucket.consumeToken();
     await this.storage.saveBucket(userId, bucket);
     return { tokensLeft: bucket.getTokensLeft() };
   }
@@ -36,11 +34,9 @@ export default class LeakyBucketService {
       await this.storage.saveBucket(userId, bucket);
     }
     bucket.refillIfNeeded();
-
     const limit = bucket.getCapacity();
     const remaining = bucket.getTokensLeft();
     const reset = bucket.getNextRefillTime();
-
     return { limit, remaining, reset };
   }
 }

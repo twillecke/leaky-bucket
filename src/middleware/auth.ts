@@ -1,4 +1,4 @@
-import { Context, Next } from 'koa';
+import type { Context, Next } from 'koa';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -19,7 +19,7 @@ export async function authMiddleware(ctx: Context, next: Next) {
       id: decoded.userId,
     };
     await next();
-  } catch (err) {
+  } catch (_err) {
     ctx.status = 401;
     ctx.body = { error: 'Invalid or expired token' };
   }
