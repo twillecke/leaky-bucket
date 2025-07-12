@@ -3,7 +3,7 @@ import Router from 'koa-router';
 import { authMiddleware } from '../middleware/auth';
 import PixService from '../services/PixService';
 import LeakyBucketService from '../services/LeackyBucketService';
-import BucketStorage from '../repo/BucketStorage';
+import BucketStorage from '../repo/BucketStorageMemory';
 
 const router = new Router();
 const bucketStorage = new BucketStorage();

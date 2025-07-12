@@ -6,6 +6,8 @@ services:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
+    networks:
+      - monitoring
 
   grafana:
     image: grafana/grafana
@@ -16,6 +18,24 @@ services:
       - grafana-storage:/var/lib/grafana
     depends_on:
       - prometheus
+    networks:
+      - monitoring
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - monitoring
 
 volumes:
   grafana-storage:
+  redis-data:
+    driver: local
+
+networks:
+  monitoring:
+    driver: bridge
